@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageMint - Client-Side Image Converter</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='15' fill='%231a1a1a'/%3E%3Cpath d='M50 15 L85 35 L85 65 L50 85 L15 65 L15 35 Z' fill='none' stroke='%2300FFF0' stroke-width='5'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%2300FFF0'/%3E%3C/svg%3E" type="image/svg+xml">
+</head>
+<body>
+    <header class="main-header">
+        <h1><svg width="30" height="30" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: -5px; margin-right: 8px;"><rect width="100" height="100" rx="15" fill="%2300FFF0" fill-opacity="0.1"/><path d="M50 15 L85 35 L85 65 L50 85 L15 65 L15 35 Z" fill="none" stroke="%2300FFF0" stroke-width="5"/><circle cx="50" cy="50" r="10" fill="%2300FFF0"/></svg>ImageMint</h1>
+        <p>Fast, client-side image conversion & optimization.</p>
+    </header>
+
+    <main class="container">
+        
+        <section id="upload-area" class="card glassmorphic">
+            <div id="drop-zone">
+                <div class="drop-zone-prompt">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+                    <p><strong>Drag & Drop</strong> images here</p>
+                    <p>or</p>
+                    <button id="browse-button" class="button primary">Browse Files</button>
+                </div>
+                <input type="file" id="file-input" multiple accept="image/*" hidden>
+                 <div class="drop-zone-overlay">Uploading...</div>
+            </div>
+             <div id="global-progress" class="progress-bar-container" style="display: none;">
+                 <div class="progress-bar"></div>
+                 <span class="progress-text">Processing...</span>
+             </div>
+        </section>
+
+        
+        <section id="controls-area" class="card neumorphic-inset"> 
+             <h2>Conversion Settings</h2>
+             <div class="control-group">
+                <label for="output-format">Output Format:</label>
+                <select id="output-format">
+                    <option value="image/png">PNG</option>
+                    <option value="image/jpeg">JPG</option> 
+                    <option value="image/webp">WebP</option>
+                    <option value="image/avif">AVIF (Browser Support Varies)</option>
+                    <option value="image/bmp">BMP</option>
+                </select>
+             </div>
+
+             <div class="control-group" id="quality-control" style="display: none;"> 
+                 <label for="quality-slider">Quality:</label>
+                 <input type="range" id="quality-slider" min="0.1" max="1.0" step="0.05" value="0.85">
+                 <span id="quality-value">85%</span>
+             </div>
+
+             <div class="control-group">
+                 <label for="resize-mode">Resize:</label>
+                 <select id="resize-mode">
+                     <option value="none" selected>Keep Original</option>
+                     <option value="pixels">By Pixels</option>
+                     <option value="percentage">By Percentage</option>
+                 </select>
+                 <div id="resize-inputs" style="display: none; margin-top: 10px;">
+                     <input type="number" id="resize-width" placeholder="Width / Percentage">
+                     <span id="resize-unit-label" style="min-width: 25px; text-align: left;">px</span>
+                     <input type="number" id="resize-height" placeholder="Height (px)">
+                 </div>
+             </div>
+
+             <div class="control-group">
+                 <label for="target-size">Optional Target Max Size:</label>
+                 <input type="number" id="target-size" placeholder="e.g., 200">
+                 <select id="target-size-unit">
+                     <option value="KB" selected>KB</option>
+                     <option value="MB">MB</option>
+                 </select>
+                 <small>Attempts compression (JPG/WebP) to meet target. Not guaranteed.</small>
+             </div>
+
+             
+             
+
+             <button id="convert-all-button" class="button primary large" disabled> 
+                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
+                 Convert & Download All
+            </button>
+        </section>
+
+        
+        <section id="image-previews">
+            
+        </section>
+    </main>
+
+    
+    <div id="notifications">
+        
+    </div>
+
+    
+    <template id="image-card-template">
+        <div class="image-card card glassmorphic">
+            <div class="card-header">
+                 <span class="filename"></span>
+                 <button class="remove-btn" title="Remove Image">
+                     <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                 </button>
+            </div>
+            <div class="card-body">
+                <img src="" alt="Preview" class="thumbnail">
+                <div class="image-info">
+                    <p><strong>Format:</strong> <span class="format"></span></p>
+                    <p><strong>Size:</strong> <span class="size"></span></p>
+                    <p><strong>Dimensions:</strong> <span class="dimensions"></span></p>
+                    <p class="output-info" style="display: none;"><strong>Output:</strong> <span class="output-details"></span></p>
+                </div>
+            </div>
+             <div class="card-progress progress-bar-container" style="display: none;">
+                 <div class="progress-bar"></div>
+             </div>
+            <div class="card-actions">
+                <button class="download-btn button secondary" style="display: none;">
+                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                    Download
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <script src="script.js"></script>
+</body>
+</html>
